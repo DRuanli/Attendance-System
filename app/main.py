@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import logging
 from config import settings
 from app.api.routes import students, attendance, reports
-from app.models.database import Base, engine
+from config.database import Base, engine
 
 # Configure logging
 logging.basicConfig(

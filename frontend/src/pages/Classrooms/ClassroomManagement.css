@@ -1,0 +1,12 @@
+/* frontend/src/pages/Classrooms/ClassroomManagement.css */
+.classrooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.classroom-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}

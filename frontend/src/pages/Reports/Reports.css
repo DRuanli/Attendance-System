@@ -1,0 +1,7 @@
+/* frontend/src/pages/Reports/Reports.css */
+.report-form {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 600px;
+}
