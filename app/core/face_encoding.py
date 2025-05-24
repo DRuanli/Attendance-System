@@ -1,9 +1,10 @@
 # app/core/face_encoding.py
+import cv2
 import face_recognition
 import numpy as np
 import pickle
 import os
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 from config import settings
 
 

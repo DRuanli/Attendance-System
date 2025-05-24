@@ -6,6 +6,7 @@ import time
 from typing import Optional, Callable
 import logging
 from config import settings
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
