@@ -11,13 +11,18 @@ class Settings(BaseSettings):
     secret_key: str = "your-secret-key-here-change-in-production"
 
     # Database
-    database_url: str = "sqlite:///./attendance.db"  # Default to SQLite for easy start
+    database_url: str = "sqlite:///./attendance.db"
 
     # Camera settings
     camera_index: int = 0
     frame_rate: int = 5
-    recognition_threshold: float = 0.5
-    confidence_threshold: float = 0.85
+
+    # FaceNet Recognition settings
+    similarity_threshold: float = 0.6  # Cosine similarity threshold (0.5-0.7 typical)
+    confidence_threshold: float = 0.7  # Minimum confidence for positive match
+    face_detection_confidence: float = 0.6  # MTCNN detection confidence
+    min_face_size: int = 20  # Minimum face size for detection
+    facenet_image_size: int = 160  # FaceNet input image size
 
     # API settings
     api_prefix: str = "/api/v1"
@@ -30,10 +35,8 @@ class Settings(BaseSettings):
     max_file_size: int = 5242880  # 5MB
     allowed_extensions: set = {".jpg", ".jpeg", ".png"}
 
-    # Recognition settings
-    face_detection_model: str = "hog"  # or "cnn" for better accuracy but slower
-    number_of_times_to_upsample: int = 1
-    face_encoding_model: str = "large"  # or "small" for faster
+    # Classroom settings
+    late_threshold_minutes: int = 15
 
     class Config:
         env_file = ".env"

@@ -1,10 +1,13 @@
 # app/api/routes/attendance.py
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, date, time
+import numpy as np
+import cv2
+import io
 from app.api.dependencies import get_db
-from app.models import Attendance, Student, Classroom
+from app.models import Attendance, Student, Classroom, Enrollment
 from app.services.attendance_service import AttendanceService
 from config import settings
 
@@ -12,10 +15,39 @@ router = APIRouter(tags=["attendance"])
 attendance_service = AttendanceService()
 
 
+@router.post("/session/start/{classroom_id}")
+async def start_attendance_session(
+        classroom_id: int,
+        db: Session = Depends(get_db)
+):
+    """Start an attendance session for face recognition."""
+    # Verify classroom exists
+    classroom = db.query(Classroom).filter(Classroom.id == classroom_id).first()
+    if not classroom:
+        raise HTTPException(status_code=404, detail="Classroom not found")
+
+    try:
+        attendance_service.start_attendance_session(classroom_id, db)
+        return {
+            "status": "success",
+            "message": "Attendance session started",
+            "classroom": classroom.course_name
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/session/stop")
+async def stop_attendance_session():
+    """Stop the current attendance session."""
+    attendance_service.stop_attendance_session()
+    return {"status": "success", "message": "Attendance session stopped"}
+
+
 @router.post("/mark")
 async def mark_attendance_manual(
-        student_id: str,
-        classroom_id: int,
+        student_id: str = Form(...),
+        classroom_id: int = Form(...),
         db: Session = Depends(get_db)
 ):
     """Manually mark attendance for a student."""
@@ -64,24 +96,97 @@ async def mark_attendance_manual(
 
 @router.post("/process-frame")
 async def process_camera_frame(
-        classroom_id: int,
-        background_tasks: BackgroundTasks,
+        classroom_id: int = Form(...),
+        image: UploadFile = File(...),
         db: Session = Depends(get_db)
 ):
-    """Process current camera frame for attendance."""
+    """Process uploaded image frame for attendance recognition."""
     # Verify classroom
     classroom = db.query(Classroom).filter(Classroom.id == classroom_id).first()
     if not classroom:
         raise HTTPException(status_code=404, detail="Classroom not found")
 
-    # Process frame in background
-    background_tasks.add_task(
-        attendance_service.process_attendance_frame,
-        classroom_id=classroom_id,
-        db=db
-    )
+    # Read and decode image
+    try:
+        contents = await image.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-    return {"message": "Processing frame for attendance"}
+        if frame is None:
+            raise HTTPException(status_code=400, detail="Invalid image format")
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error processing image: {str(e)}")
+
+    # Process the frame
+    try:
+        # Ensure attendance session is started
+        if not hasattr(attendance_service, 'face_recognition') or \
+                len(attendance_service.face_recognition.known_face_encodings) == 0:
+            attendance_service.start_attendance_session(classroom_id, db)
+
+        # Process the frame directly
+        marked_students = await attendance_service.process_frame_direct(frame, classroom_id, db)
+
+        return {
+            "status": "success",
+            "recognized_count": len(marked_students),
+            "students": marked_students
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error in face recognition: {str(e)}")
+
+
+@router.post("/verify-face")
+async def verify_student_face(
+        student_id: str = Form(...),
+        image: UploadFile = File(...),
+        db: Session = Depends(get_db)
+):
+    """Verify if the uploaded face matches the student."""
+    # Get student
+    student = db.query(Student).filter(Student.student_id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    if not student.face_encoding:
+        raise HTTPException(status_code=400, detail="Student has no face encoding")
+
+    # Read and decode image
+    try:
+        contents = await image.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        image_array = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        if image_array is None:
+            raise HTTPException(status_code=400, detail="Invalid image format")
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error processing image: {str(e)}")
+
+    # Verify face
+    try:
+        # Detect faces in the image
+        aligned_faces, _ = attendance_service.face_recognition.detector.detect_and_align_faces(image_array)
+
+        if not aligned_faces:
+            return {"verified": False, "message": "No face detected", "confidence": 0.0}
+
+        # Use the first face for verification
+        is_match, confidence = attendance_service.face_recognition.verify_face(
+            aligned_faces[0],
+            student.id
+        )
+
+        return {
+            "verified": is_match,
+            "confidence": float(confidence),
+            "message": "Face verified" if is_match else "Face does not match"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error in face verification: {str(e)}")
 
 
 @router.get("/classroom/{classroom_id}/today")
@@ -140,3 +245,15 @@ def get_student_attendance_history(
         }
         for a in attendances
     ]
+
+
+@router.get("/classroom/{classroom_id}/absentees")
+def get_absentees(classroom_id: int, db: Session = Depends(get_db)):
+    """Get list of absent students for today."""
+    absentees = attendance_service.get_absentees(classroom_id, db)
+    return {
+        "classroom_id": classroom_id,
+        "date": date.today(),
+        "absentees": absentees,
+        "count": len(absentees)
+    }
