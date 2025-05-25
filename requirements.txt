@@ -14,6 +14,9 @@ torchvision==0.16.0
 facenet-pytorch==2.5.3
 opencv-python==4.8.1.78
 
+# Scheduler
+apscheduler==3.10.4
+
 # Data processing
 numpy==1.24.3
 pandas==2.1.3
