@@ -89,11 +89,22 @@ class AttendanceSchedulerService:
 
             for classroom in classrooms:
                 if classroom.day_of_week is not None and classroom.start_time:
+                    # Calculate start time (5 minutes early)
+                    start_hour = classroom.start_time.hour
+                    start_minute = classroom.start_time.minute - 5
+
+                    # Handle negative minutes
+                    if start_minute < 0:
+                        start_minute += 60
+                        start_hour -= 1
+                        if start_hour < 0:
+                            start_hour = 23
+
                     # Schedule start of attendance session
                     start_trigger = CronTrigger(
                         day_of_week=classroom.day_of_week,
-                        hour=classroom.start_time.hour,
-                        minute=classroom.start_time.minute - 5  # Start 5 minutes early
+                        hour=start_hour,
+                        minute=start_minute
                     )
 
                     self.scheduler.add_job(
@@ -106,10 +117,21 @@ class AttendanceSchedulerService:
 
                     # Schedule end of attendance session
                     if classroom.end_time:
+                        # Calculate end time (10 minutes after class)
+                        end_hour = classroom.end_time.hour
+                        end_minute = classroom.end_time.minute + 10
+
+                        # Handle minute overflow
+                        if end_minute >= 60:
+                            end_minute -= 60
+                            end_hour += 1
+                            if end_hour >= 24:
+                                end_hour = 0
+
                         end_trigger = CronTrigger(
                             day_of_week=classroom.day_of_week,
-                            hour=classroom.end_time.hour,
-                            minute=classroom.end_time.minute + 10  # End 10 minutes after class
+                            hour=end_hour,
+                            minute=end_minute
                         )
 
                         self.scheduler.add_job(

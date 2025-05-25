@@ -35,7 +35,7 @@ class BackgroundServiceManager:
         # Setup signal handlers
         loop = asyncio.get_event_loop()
         for sig in (signal.SIGTERM, signal.SIGINT):
-            loop.add_signal_handler(sig, self.shutdown)
+            loop.add_signal_handler(sig, lambda: asyncio.create_task(self.shutdown()))
 
         # Start monitoring task
         self.main_task = asyncio.create_task(self._monitor_services())

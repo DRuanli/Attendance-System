@@ -21,7 +21,7 @@ async def register_student(
         first_name: str = Form(...),
         last_name: str = Form(...),
         email: str = Form(...),
-        phone: Optional[str] = Form(None),
+        phone: Optional[str] = Form(""),
         photos: List[UploadFile] = File(...),
         db: Session = Depends(get_db)
 ):
