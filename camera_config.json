@@ -1,0 +1,54 @@
+{
+  "1": [
+    {
+      "camera_id": 0,
+      "camera_type": "usb",
+      "name": "instructor_cam",
+      "location": "front_podium",
+      "fps": 10,
+      "resolution": [640, 480]
+    },
+    {
+      "camera_id": "192.168.1.100:554/stream1",
+      "camera_type": "rtsp",
+      "name": "security_cam_1",
+      "location": "back_left",
+      "username": "admin",
+      "password": "admin123",
+      "fps": 15,
+      "resolution": [1920, 1080]
+    },
+    {
+      "camera_id": "192.168.1.101:554/stream1",
+      "camera_type": "rtsp",
+      "name": "security_cam_2",
+      "location": "back_right",
+      "username": "admin",
+      "password": "admin123",
+      "fps": 15,
+      "resolution": [1920, 1080]
+    }
+  ],
+  "2": [
+    {
+      "camera_id": "192.168.1.102:554/stream1",
+      "camera_type": "rtsp",
+      "name": "lab_cam_1",
+      "location": "entrance",
+      "username": "admin",
+      "password": "admin123",
+      "fps": 10,
+      "resolution": [1280, 720]
+    },
+    {
+      "camera_id": "192.168.1.103:554/stream1",
+      "camera_type": "rtsp",
+      "name": "lab_cam_2",
+      "location": "center",
+      "username": "admin",
+      "password": "admin123",
+      "fps": 10,
+      "resolution": [1280, 720]
+    }
+  ]
+}
