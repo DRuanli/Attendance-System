@@ -55,13 +55,8 @@ class AttendanceService:
         self.camera_handler.stop()
         logger.info("Stopped attendance session")
 
-    async def process_attendance_frame(self, classroom_id: int, db: Session):
-        """Process a single frame for attendance."""
-        # Get frame from camera
-        frame = self.camera_handler.get_frame()
-        if frame is None:
-            return []
-
+    async def process_frame_direct(self, frame: np.ndarray, classroom_id: int, db: Session) -> List[Dict]:
+        """Process a frame directly for attendance marking."""
         # Get classroom info
         classroom = db.query(Classroom).filter(Classroom.id == classroom_id).first()
         if not classroom:
@@ -79,9 +74,13 @@ class AttendanceService:
             if not student_id or student_id in self.processed_today:
                 continue
 
+            # Skip if confidence is too low
+            if result['confidence'] < 0.7:
+                continue
+
             # Determine attendance status
             now = datetime.now()
-            class_start = datetime.combine(now.date(), classroom.start_time)
+            class_start = datetime.combine(now.date(), classroom.start_time) if classroom.start_time else now
             late_threshold = class_start + timedelta(minutes=classroom.late_threshold_minutes)
 
             status = "present"
@@ -103,16 +102,29 @@ class AttendanceService:
             # Add to processed set
             self.processed_today.add(student_id)
 
+            # Get student info
+            student = db.query(Student).filter(Student.id == student_id).first()
+
             marked_students.append({
-                'student_name': result['name'],
+                'student_id': student.student_id,
+                'student_name': student.full_name,
                 'status': status,
                 'confidence': result['confidence'],
-                'time': now
+                'time': now.isoformat()
             })
 
             logger.info(f"Marked attendance for {result['name']} - {status}")
 
         return marked_students
+
+    async def process_attendance_frame(self, classroom_id: int, db: Session):
+        """Process a single frame for attendance."""
+        # Get frame from camera
+        frame = self.camera_handler.get_frame()
+        if frame is None:
+            return []
+
+        return await self.process_frame_direct(frame, classroom_id, db)
 
     def get_absentees(self, classroom_id: int, db: Session) -> List[Dict]:
         """Get list of absent students for today."""

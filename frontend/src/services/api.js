@@ -50,16 +50,28 @@ export const studentAPI = {
 
 // Attendance APIs
 export const attendanceAPI = {
-  markManual: (data) => api.post('/attendance/mark', data),
-  processFrame: (classroomId) => api.post('/attendance/process-frame', { classroom_id: classroomId }),
+  startSession: (classroomId) => api.post(`/attendance/session/start/${classroomId}`),
+  stopSession: () => api.post('/attendance/session/stop'),
+  markManual: (data) => {
+    const formData = new FormData();
+    formData.append('student_id', data.student_id);
+    formData.append('classroom_id', data.classroom_id);
+    return api.post('/attendance/mark', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  processFrame: (formData) => api.post('/attendance/process-frame', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   getTodayAttendance: (classroomId) => api.get(`/attendance/classroom/${classroomId}/today`),
   getStudentHistory: (studentId, params) => api.get(`/attendance/student/${studentId}/history`, { params }),
+  getAbsentees: (classroomId) => api.get(`/attendance/classroom/${classroomId}/absentees`),
 };
 
 // Reports APIs
 export const reportAPI = {
   getClassroomReport: (classroomId, params) =>
-    api.get(`/reports/classroom/${classroomId}/attendance-report`, { params }),
+    api.get(`/reports/classroom/${classroomId}/attendance-report`, { params, responseType: 'blob' }),
   getClassroomStats: (classroomId) =>
     api.get(`/reports/statistics/classroom/${classroomId}`),
 };

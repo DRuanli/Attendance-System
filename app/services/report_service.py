@@ -1,5 +1,5 @@
 # app/services/report_service.py
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
 from typing import List, Dict

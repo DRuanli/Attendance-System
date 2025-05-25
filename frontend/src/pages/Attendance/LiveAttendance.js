@@ -15,12 +15,31 @@ const LiveAttendance = () => {
 
   useEffect(() => {
     fetchTodayAttendance();
+    startAttendanceSession();
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      stopAttendanceSession();
     };
   }, [classroomId]);
+
+  const startAttendanceSession = async () => {
+    try {
+      await attendanceAPI.startSession(parseInt(classroomId));
+    } catch (error) {
+      console.error('Error starting session:', error);
+    }
+  };
+
+  const stopAttendanceSession = async () => {
+    try {
+      await attendanceAPI.stopSession();
+    } catch (error) {
+      console.error('Error stopping session:', error);
+    }
+  };
 
   const fetchTodayAttendance = async () => {
     try {
@@ -31,20 +50,40 @@ const LiveAttendance = () => {
     }
   };
 
-  const processFrame = async () => {
-    try {
-      await attendanceAPI.processFrame(parseInt(classroomId));
-      fetchTodayAttendance();
-    } catch (error) {
-      console.error('Error processing frame:', error);
+  const captureAndProcessFrame = useCallback(async () => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc) {
+        try {
+          // Convert base64 to blob
+          const base64Response = await fetch(imageSrc);
+          const blob = await base64Response.blob();
+
+          // Create FormData
+          const formData = new FormData();
+          formData.append('classroom_id', classroomId);
+          formData.append('image', blob, 'frame.jpg');
+
+          // Send to backend
+          const response = await attendanceAPI.processFrame(formData);
+
+          if (response.data.recognized_count > 0) {
+            toast.success(`Recognized ${response.data.recognized_count} student(s)`);
+            fetchTodayAttendance();
+          }
+        } catch (error) {
+          console.error('Error processing frame:', error);
+        }
+      }
     }
-  };
+  }, [classroomId]);
 
   const startCapturing = () => {
     setIsCapturing(true);
+    // Capture frame every 3 seconds
     intervalRef.current = setInterval(() => {
-      processFrame();
-    }, 5000); // Process every 5 seconds
+      captureAndProcessFrame();
+    }, 3000);
     toast.success('Live attendance started');
   };
 
@@ -56,6 +95,12 @@ const LiveAttendance = () => {
     toast.info('Live attendance stopped');
   };
 
+  const webcamConstraints = {
+    width: 640,
+    height: 480,
+    facingMode: "user"
+  };
+
   return (
     <div className="live-attendance">
       <div className="camera-section">
@@ -63,9 +108,10 @@ const LiveAttendance = () => {
         <div className="camera-container">
           <Webcam
             ref={webcamRef}
+            audio={false}
             screenshotFormat="image/jpeg"
-            width={640}
-            height={480}
+            videoConstraints={webcamConstraints}
+            style={{ width: '100%', maxWidth: '640px' }}
           />
         </div>
         <div className="camera-controls">

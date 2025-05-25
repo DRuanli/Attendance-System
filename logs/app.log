@@ -9,3 +9,39 @@
 2025-05-25 00:41:20,856 - app.main - INFO - Starting Classroom Attendance System
 2025-05-25 00:42:53,743 - app.main - INFO - Shutting down Classroom Attendance System
 2025-05-25 00:43:05,868 - app.main - INFO - Starting Classroom Attendance System
+2025-05-25 00:56:18,345 - app.main - INFO - Shutting down Classroom Attendance System
+2025-05-25 00:56:25,692 - app.main - INFO - Starting Classroom Attendance System
+2025-05-25 00:56:37,798 - app.main - INFO - Shutting down Classroom Attendance System
+2025-05-25 00:56:43,713 - app.main - INFO - Starting Classroom Attendance System
+2025-05-25 00:58:21,355 - app.main - INFO - Shutting down Classroom Attendance System
+2025-05-25 00:58:27,074 - app.main - INFO - Starting Classroom Attendance System
+2025-05-25 00:58:30,883 - app.main - INFO - Shutting down Classroom Attendance System
+2025-05-25 00:58:37,383 - app.main - INFO - Starting Classroom Attendance System
+2025-05-25 00:59:20,727 - app.main - INFO - Shutting down Classroom Attendance System
+2025-05-25 09:10:43,450 - app.main - INFO - Starting Classroom Attendance System
+2025-05-25 09:10:58,112 - app.core.camera_handler - INFO - Camera 0 stopped
+2025-05-25 09:10:58,112 - app.services.attendance_service - INFO - Stopped attendance session
+2025-05-25 09:11:09,092 - app.core.camera_handler - INFO - Camera 0 stopped
+2025-05-25 09:11:09,092 - app.services.attendance_service - INFO - Stopped attendance session
+2025-05-25 09:13:08,839 - app.main - INFO - Shutting down Classroom Attendance System
+2025-05-25 09:14:01,987 - app.main - INFO - Starting Classroom Attendance System
+2025-05-25 09:14:39,817 - app.core.camera_handler - INFO - Camera 0 stopped
+2025-05-25 09:14:39,817 - app.services.attendance_service - INFO - Stopped attendance session
+2025-05-25 09:14:39,829 - app.core.face_recognition - INFO - Loaded 0 known faces
+2025-05-25 09:14:42,081 - app.core.camera_handler - INFO - Camera 0 started
+2025-05-25 09:14:42,099 - app.services.attendance_service - INFO - Started attendance session for classroom 1
+2025-05-25 09:14:42,113 - app.core.face_recognition - INFO - Loaded 0 known faces
+2025-05-25 09:14:42,114 - app.services.attendance_service - INFO - Started attendance session for classroom 1
+2025-05-25 09:14:44,322 - app.core.face_recognition - INFO - Loaded 0 known faces
+2025-05-25 09:14:44,323 - app.services.attendance_service - INFO - Started attendance session for classroom 1
+2025-05-25 09:14:45,044 - app.core.camera_handler - INFO - Camera 0 stopped
+2025-05-25 09:14:45,044 - app.services.attendance_service - INFO - Stopped attendance session
+2025-05-25 09:14:52,165 - app.core.camera_handler - INFO - Camera 0 stopped
+2025-05-25 09:14:52,166 - app.services.attendance_service - INFO - Stopped attendance session
+2025-05-25 09:14:52,170 - app.core.face_recognition - INFO - Loaded 0 known faces
+2025-05-25 09:14:53,554 - app.core.camera_handler - INFO - Camera 0 started
+2025-05-25 09:14:53,556 - app.services.attendance_service - INFO - Started attendance session for classroom 1
+2025-05-25 09:14:53,560 - app.core.face_recognition - INFO - Loaded 0 known faces
+2025-05-25 09:14:53,563 - app.services.attendance_service - INFO - Started attendance session for classroom 1
+2025-05-25 09:14:59,170 - app.core.camera_handler - INFO - Camera 0 stopped
+2025-05-25 09:14:59,170 - app.services.attendance_service - INFO - Stopped attendance session
