@@ -6,7 +6,8 @@
       "name": "instructor_cam",
       "location": "front_podium",
       "fps": 10,
-      "resolution": [640, 480]
+      "resolution": [640, 480],
+
     },
     {
       "camera_id": "192.168.1.100:554/stream1",
